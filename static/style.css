@@ -1293,3 +1293,93 @@ input:focus {
 .btn-primary:hover::after {
     left: 140%;
 }
+
+/* ═══════════════════════════════════════════════════════════ */
+/* RESPONSIVE LAYOUTS (Mobile & Tablet Optimization)           */
+/* ═══════════════════════════════════════════════════════════ */
+
+/* Tablet & Laptop Adjustments */
+@media (max-width: 1024px) {
+    .feature-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+    .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 4rem; }
+    .hero-title { font-size: 3rem; }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    /* Navbar Swipe Menu */
+    .nav-links {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 1.5rem;
+        padding-bottom: 5px; /* space for scrollbar */
+        justify-content: flex-start;
+        width: 100%;
+    }
+    
+    .nav-links::-webkit-scrollbar { height: 4px; }
+    .nav-links::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+    .nav-links::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 4px; }
+    
+    .header .container, .navbar .container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .logo { font-size: 1.5rem; }
+
+    /* Hero Section Stacking */
+    .hero-split {
+        flex-direction: column-reverse;
+        gap: 3rem;
+        padding-top: 100px;
+    }
+    
+    .hero-title { font-size: 2.3rem; line-height: 1.2; }
+    .hero-subtitle { font-size: 1rem; }
+    .hero-visual { padding-top: 1rem; }
+
+    /* Feature Grid */
+    .feature-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    
+    /* Footer Grid */
+    .footer-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .footer-flex, .footer-bottom-flex { flex-direction: column; align-items: flex-start; gap: 1rem; }
+
+    /* Login/Signup Overrides */
+    .auth-container { padding-top: 100px; min-height: auto; }
+    .split-layout { grid-template-columns: 1fr; min-height: auto; }
+    .info-pane { display: none; } /* Hide large graphic info pane on mobile to save space */
+    .form-pane { padding: 2rem; }
+
+    /* Tables (Admissions / Operations) Overflow wrapper */
+    .glass-table, table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Floating Chatbot Widget */
+    .chatbot-container {
+        width: 90vw;
+        height: 70vh;
+        bottom: 80px !important;
+        right: 5vw !important;
+        border-radius: 20px;
+    }
+    .chatbot-icon {
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 55px !important;
+        height: 55px !important;
+    }
+    .flash-messages-container {
+        top: 130px;
+        right: 5vw;
+        width: 90vw;
+    }
+}

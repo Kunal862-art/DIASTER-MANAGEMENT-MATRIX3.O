@@ -4,7 +4,7 @@ from io import StringIO
 from flask import Flask, render_template, redirect, url_for, request, flash, send_file, Response, session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Report, Attendance, ChatMessage, TrainingEvent
+from models import db, User, Report, Attendance, ChatMessage, TrainingEvent, TrainingAdmission
 from datetime import datetime
 import google.generativeai as genai
 
