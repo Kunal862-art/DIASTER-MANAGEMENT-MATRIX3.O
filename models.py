@@ -9,7 +9,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
-    role = db.Column(db.String(50), default='user') # 'admin' or 'user'
+    role = db.Column(db.String(50), default='citizen') # 'government' or 'citizen'
 
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)

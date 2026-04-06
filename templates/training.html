@@ -143,14 +143,14 @@
         </div>
     </div>
 
-    <!-- ══════ Add Training Event Button ══════ -->
+    <!-- ══════ Add Training Event Button & Form (Government Only) ══════ -->
+    {% if current_user.is_authenticated and current_user.role == 'government' %}
     <div class="training-add-section">
         <button class="btn-add-training" id="toggle-training-form">
             <i class="fas fa-plus-circle"></i> Add Training Event
         </button>
     </div>
 
-    <!-- ══════ Add Training Event Form ══════ -->
     <div class="training-form-wrapper" id="training-form" style="display:none;">
         <div class="auth-card" style="max-width:700px; animation:none;">
             <h3 style="margin-bottom:2rem; text-align:center;">
@@ -226,6 +226,7 @@
             </form>
         </div>
     </div>
+    {% endif %}
 </section>
 
 <script>

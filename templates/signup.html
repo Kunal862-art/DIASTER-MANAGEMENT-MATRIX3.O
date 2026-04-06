@@ -1,30 +1,108 @@
 {% extends "base.html" %}
 
-{% block title %}Sign Up - SAFESTEP{% endblock %}
+{% block title %}Join SAFESTEP - Choose Your Portal{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <h2>Create Account</h2>
-        <p>Join our mission to manage crises effectively</p>
-        <form method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required placeholder="Pick a username">
+<div class="container" style="padding-top: 100px; padding-bottom: 50px;">
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 1rem; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Join the Response Network</h1>
+        <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">Select your portal to begin. Government access requires a verified .gov.in email address.</p>
+    </div>
+
+    <!-- Portal Selection -->
+    <div class="signup-split-wrapper" id="portal-selection">
+        <div class="portal-card citizen-portal" onclick="selectPortal('citizen')">
+            <div class="portal-icon">🛡️</div>
+            <h3>Citizen Portal</h3>
+            <p>Report incidents, check safety status, and stay informed during active crises.</p>
+            <div class="btn-portal">Register as Citizen</div>
+        </div>
+
+        <div class="portal-card gov-portal" onclick="selectPortal('government')">
+            <div class="gov-badge">Official</div>
+            <div class="portal-icon">🏛️</div>
+            <h3>Government Portal</h3>
+            <p>Coordinate rescue operations, manage training camps, and analyze spatial data.</p>
+            <div class="btn-portal">Official Onboarding</div>
+        </div>
+    </div>
+
+    <!-- Hidden Form Section -->
+    <div class="auth-container" id="signup-form-section" style="display: none; margin-top: 2rem;">
+        <div class="auth-card" id="form-card" style="max-width: 500px; margin: 0 auto;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <span id="portal-label-icon" style="font-size: 2rem;">🛡️</span>
+                <div>
+                    <h2 id="portal-form-title" style="margin: 0;">Citizen Signup</h2>
+                    <p id="portal-form-desc" style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Join as a verified responder</p>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="Enter your email">
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Choose a name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Your email address">
+                    <small id="email-hint" style="display: block; margin-top: 5px; font-size: 0.8rem; color: var(--text-secondary);"></small>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Secure password">
+                </div>
+                <button type="submit" class="btn-primary-block" id="submit-btn" style="width: 100%; padding: 1rem; border-radius: 12px; margin-top: 1rem;">Create Account</button>
+            </form>
+            
+            <div class="auth-footer" style="margin-top: 1.5rem;">
+                <p>Wrong portal? <a href="javascript:void(0)" onclick="resetPortal()" style="color: var(--primary-color);">Go back</a></p>
+                <p style="margin-top: 0.5rem;">Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Choose a secure password">
-            </div>
-            <button type="submit" class="btn-primary-block">Sign Up</button>
-        </form>
-        <div class="auth-footer">
-            <p>Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
         </div>
     </div>
 </div>
+
+<script>
+function selectPortal(type) {
+    const selection = document.getElementById('portal-selection');
+    const formSection = document.getElementById('signup-form-section');
+    const title = document.getElementById('portal-form-title');
+    const desc = document.getElementById('portal-form-desc');
+    const icon = document.getElementById('portal-label-icon');
+    const hint = document.getElementById('email-hint');
+    const card = document.getElementById('form-card');
+    const submitBtn = document.getElementById('submit-btn');
+
+    selection.style.display = 'none';
+    formSection.style.display = 'block';
+
+    if (type === 'government') {
+        title.innerText = 'Government Portal';
+        desc.innerText = 'Official management dashboard';
+        icon.innerText = '🏛️';
+        hint.innerText = '⚠️ Requires an email ending with @gov.in';
+        hint.style.color = 'var(--secondary-color)';
+        submitBtn.style.background = 'var(--accent-gradient)';
+        card.style.borderColor = 'var(--secondary-color)';
+    } else {
+        title.innerText = 'Citizen Portal';
+        desc.innerText = 'Active responder network';
+        icon.innerText = '🛡️';
+        hint.innerText = 'Standard registration for volunteers and residents';
+        hint.style.color = 'var(--text-secondary)';
+        submitBtn.style.background = 'var(--primary-color)';
+        submitBtn.style.color = '#0B0E14';
+        card.style.borderColor = 'var(--primary-color)';
+    }
+    
+    // Smooth scroll to form
+    formSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetPortal() {
+    document.getElementById('portal-selection').style.display = 'flex';
+    document.getElementById('signup-form-section').style.display = 'none';
+}
+</script>
 {% endblock %}

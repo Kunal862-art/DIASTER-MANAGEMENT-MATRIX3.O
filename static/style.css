@@ -647,6 +647,111 @@ input:focus {
     }
 }
 
+/* --- Signup Split UI --- */
+.signup-split-wrapper {
+    display: flex;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.portal-card {
+    flex: 1;
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2rem;
+    text-align: center;
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.portal-card:hover {
+    transform: translateY(-10px);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.portal-card .portal-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    transition: var(--transition);
+}
+
+.portal-card.citizen-portal:hover .portal-icon {
+    color: var(--primary-color);
+    text-shadow: 0 0 20px rgba(0, 242, 255, 0.6);
+}
+
+.portal-card.gov-portal:hover .portal-icon {
+    color: var(--secondary-color);
+    text-shadow: 0 0 20px rgba(112, 0, 255, 0.6);
+}
+
+.portal-card h3 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.portal-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.portal-card .btn-portal {
+    margin-top: auto;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    transition: var(--transition);
+}
+
+.citizen-portal:hover .btn-portal {
+    background: var(--primary-color);
+    color: #0B0E14;
+    border-color: var(--primary-color);
+}
+
+.gov-portal:hover .btn-portal {
+    background: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+
+.gov-badge {
+    position: absolute;
+    top: 20px;
+    right: -30px;
+    background: var(--secondary-color);
+    color: white;
+    padding: 5px 40px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    transform: rotate(45deg);
+    text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+    .signup-split-wrapper {
+        flex-direction: column;
+    }
+}
+
 /* ═══════════════════════════════════════════════════════════ */
 /* TRAINING EVENTS PAGE                                        */
 /* ═══════════════════════════════════════════════════════════ */

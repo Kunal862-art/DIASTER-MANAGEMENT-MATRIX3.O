@@ -60,10 +60,14 @@ def signup():
             flash('Email already exists.', 'error')
             return redirect(url_for('signup'))
         
+        # Determine role based on email domain
+        role = 'government' if email.lower().endswith('@gov.in') else 'citizen'
+        
         new_user = User(
             username=username,
             email=email,
-            password=generate_password_hash(password, method='scrypt')
+            password=generate_password_hash(password, method='scrypt'),
+            role=role
         )
         db.session.add(new_user)
         db.session.commit()
@@ -151,9 +155,9 @@ def attendance():
 @app.route('/training', methods=['GET', 'POST'])
 def training():
     if request.method == 'POST':
-        if not current_user.is_authenticated:
-            flash('Please log in to add a training event.', 'error')
-            return redirect(url_for('login'))
+        if not current_user.is_authenticated or current_user.role != 'government':
+            flash('Access denied. Only government officials can manage training events.', 'error')
+            return redirect(url_for('training'))
         
         title = request.form.get('title')
         description = request.form.get('description')
