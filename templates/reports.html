@@ -6,7 +6,8 @@
 <div class="reports-header-section">
     <h1>All Incident Reports</h1>
     <p>A comprehensive log of all disasters reported within the system.</p>
-    <a href="{{ url_for('download_reports') }}" class="btn-primary-lg"><i class="fas fa-file-csv"></i> Export Incident Data (CSV)</a>
+    <a href="{{ url_for('download_reports') }}" class="btn-primary-lg"><i class="fas fa-file-csv"></i> Export Incident
+        Data (CSV)</a>
 </div>
 
 <div class="reports-grid">
@@ -50,23 +51,23 @@
     <div class="reports-list">
         <h3>Incident Log</h3>
         {% if reports %}
-            {% for report in reports %}
-                <div class="report-entry card">
-                    <div class="report-badge {{ report.severity|lower }}">{{ report.severity }}</div>
-                    <div class="report-header">
-                        <h4>{{ report.title }}</h4>
-                        <span class="type-tag">{{ report.disaster_type }}</span>
-                    </div>
-                    <p class="location"><i class="fas fa-map-marker-alt"></i> {{ report.location }}</p>
-                    <p class="desc">{{ report.description }}</p>
-                    <div class="report-footer">
-                        <span><i class="far fa-calendar-alt"></i> {{ report.date_reported.strftime('%Y-%m-%d %H:%M') }}</span>
-                        <span>REPORT ID: #{{ report.id }}</span>
-                    </div>
-                </div>
-            {% endfor %}
+        {% for report in reports %}
+        <div class="report-entry card">
+            <div class="report-badge {{ report.severity|lower }}">{{ report.severity }}</div>
+            <div class="report-header">
+                <h4>{{ report.title }}</h4>
+                <span class="type-tag">{{ report.disaster_type }}</span>
+            </div>
+            <p class="location"><i class="fas fa-map-marker-alt"></i> {{ report.location }}</p>
+            <p class="desc">{{ report.description }}</p>
+            <div class="report-footer">
+                <span><i class="far fa-calendar-alt"></i> {{ report.date_reported.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span>REPORT ID: #{{ report.id }}</span>
+            </div>
+        </div>
+        {% endfor %}
         {% else %}
-            <p>No incidents recorded in the system.</p>
+        <p>No incidents recorded in the system.</p>
         {% endif %}
     </div>
 </div>

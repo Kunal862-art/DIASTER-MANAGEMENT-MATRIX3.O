@@ -4,16 +4,34 @@
 
 {% block content %}
 <section class="hero">
-    <div class="hero-tag">SECURE • RELIABLE • INSTANT</div>
-    <h1>Manage Disasters with Confidence.</h1>
-    <p>A high-performance platform for real-time incident reporting and personnel tracking. Built for clarity when every second counts.</p>
-    <div class="hero-btns">
-        <a href="{{ url_for('reports') }}" class="btn-primary-lg">Report Incident</a>
-        <a href="{{ url_for('attendance') }}" class="btn-outline">Team Status</a>
-    </div>
-    
-    <div class="hero-visual">
-        <img src="{{ url_for('static', filename='images/hero_redesign.png') }}" alt="Redesigned Hero Image">
+    <div class="container hero-container">
+        <div class="hero-content">
+            <div class="hero-tag">SECURE • RELIABLE • INSTANT</div>
+            <h1 id="typewriter-h1">Manage Disasters with Confidence.</h1>
+            <p>A high-performance platform for real-time incident reporting and personnel tracking. Built for clarity when every second counts.</p>
+            <div class="hero-btns">
+                <a href="{{ url_for('reports') }}" class="btn-primary-lg">Report Incident</a>
+                <a href="{{ url_for('attendance') }}" class="btn-outline">Team Status</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-carousel-scene">
+                <div class="hero-carousel">
+                    <div class="hero-carousel-item item-1">
+                        <img src="{{ url_for('static', filename='images/hero_command.png') }}" alt="Command Center">
+                    </div>
+                    <div class="hero-carousel-item item-2">
+                        <img src="{{ url_for('static', filename='images/hero_rescue.png') }}" alt="Rescue Operation">
+                    </div>
+                    <div class="hero-carousel-item item-3">
+                        <img src="{{ url_for('static', filename='images/hero_medical.png') }}" alt="Medical Response">
+                    </div>
+                    <div class="hero-carousel-item item-4">
+                        <img src="{{ url_for('static', filename='images/hero_satellite.png') }}" alt="Satellite Intelligence">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 

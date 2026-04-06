@@ -59,6 +59,28 @@
         </div>
     </footer>
     
+    <div class="chatbot-container" id="chat-window" style="display: none;">
+        <div class="chat-header">
+            <div class="chat-title">🤖 SAFESTEP Support</div>
+            <div class="chat-actions">
+                <button id="clear-chat" title="Clear History"><i class="fas fa-trash-alt"></i></button>
+                <button id="close-chat" title="Minimize"><i class="fas fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will be loaded here -->
+            <div class="bot-msg">👋 Hello! I'm your SAFESTEP assistant. How can I help you today?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask about disasters or SAFESTEP...">
+            <button id="send-chat"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="chatbot-floating-btn" id="open-chat" title="Open Chatbot">
+        🤖
+    </div>
+
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
