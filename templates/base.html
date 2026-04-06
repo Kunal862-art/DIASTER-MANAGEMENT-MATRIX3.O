@@ -16,7 +16,8 @@
 <body>
     <header class="navbar">
         <div class="container">
-            <a href="{{ url_for('index') }}" class="logo">
+            <a href="{{ url_for('index') }}" class="logo" style="display: flex; align-items: center; gap: 12px;">
+                <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo" style="height: 40px; width: auto; object-fit: contain; border-radius: 8px;">
                 SAFESTEP
             </a>
             <nav>
