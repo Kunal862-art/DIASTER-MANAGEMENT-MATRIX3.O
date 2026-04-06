@@ -55,9 +55,14 @@ def signup():
         email = request.form.get('email')
         password = request.form.get('password')
         
-        user = User.query.filter_by(email=email).first()
-        if user:
+        user_by_email = User.query.filter_by(email=email).first()
+        if user_by_email:
             flash('Email already exists.', 'error')
+            return redirect(url_for('signup'))
+            
+        user_by_username = User.query.filter_by(username=username).first()
+        if user_by_username:
+            flash('Username is already taken. Please choose another one.', 'error')
             return redirect(url_for('signup'))
         
         # Determine role based on email domain
@@ -220,6 +225,46 @@ def api_training_events():
                 'description': e.description or ''
             })
     return {'events': result}
+
+@app.route('/admissions')
+@login_required
+def admissions():
+    if current_user.role != 'government':
+        flash('Access denied. Admissions board is for official use only.', 'error')
+        return redirect(url_for('index'))
+    
+    all_admissions = TrainingAdmission.query.order_by(TrainingAdmission.admitted_at.desc()).all()
+    return render_template('admissions.html', admissions=all_admissions)
+
+@app.route('/api/mark-attendance', methods=['POST'])
+@login_required
+def mark_attendance():
+    data = request.get_json()
+    qr_data = data.get('qr_data') # Expected format: "CAMP_ID:123"
+    
+    if not qr_data or not qr_data.startswith('CAMP_ID:'):
+        return {'success': False, 'message': 'Invalid QR Code format.'}, 400
+    
+    try:
+        event_id = int(qr_data.split(':')[1])
+        event = TrainingEvent.query.get(event_id)
+        
+        if not event:
+            return {'success': False, 'message': 'Training camp not found.'}, 404
+            
+        # Check if already admitted
+        existing = TrainingAdmission.query.filter_by(user_id=current_user.id, training_event_id=event_id).first()
+        if existing:
+            return {'success': False, 'message': 'You have already been admitted to this camp.'}
+            
+        new_admission = TrainingAdmission(user_id=current_user.id, training_event_id=event_id)
+        db.session.add(new_admission)
+        db.session.commit()
+        
+        return {'success': True, 'message': f'Successfully admitted to {event.title}!'}
+        
+    except Exception as e:
+        return {'success': False, 'message': str(e)}, 500
 
 def _seed_training_data():
     """Seeds realistic demo training events with coordinates across India."""

@@ -98,6 +98,21 @@
                         <div class="tc-status-bar ongoing-bar">
                             <div class="ongoing-pulse"></div>
                         </div>
+                        
+                        <!-- QR Actions -->
+                        <div class="tc-actions" style="margin-top: 1rem; display: flex; gap: 10px;">
+                            {% if current_user.is_authenticated %}
+                                {% if current_user.role == 'government' %}
+                                    <button class="btn-sm btn-outline" onclick="showEventQR('{{ event.id }}', '{{ event.title }}')" style="font-size: 0.75rem; padding: 5px 12px; border-radius: 20px;">
+                                        <i class="fas fa-qrcode"></i> Show Admission QR
+                                    </button>
+                                {% else %}
+                                    <button class="btn-sm btn-primary" onclick="startScanner('{{ event.id }}')" style="font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; color: #0B0E14;">
+                                        <i class="fas fa-camera"></i> Mark My Attendance
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
                     {% endfor %}
                 {% else %}
@@ -131,6 +146,21 @@
                         <p class="tc-desc">{{ event.description }}</p>
                         {% endif %}
                         <div class="tc-status-bar upcoming-bar"></div>
+                        
+                        <!-- QR Actions -->
+                        <div class="tc-actions" style="margin-top: 1rem; display: flex; gap: 10px;">
+                            {% if current_user.is_authenticated %}
+                                {% if current_user.role == 'government' %}
+                                    <button class="btn-sm btn-outline" onclick="showEventQR('{{ event.id }}', '{{ event.title }}')" style="font-size: 0.75rem; padding: 5px 12px; border-radius: 20px;">
+                                        <i class="fas fa-qrcode"></i> Show Admission QR
+                                    </button>
+                                {% else %}
+                                    <button class="btn-sm btn-primary" onclick="startScanner('{{ event.id }}')" style="font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; color: #0B0E14;">
+                                        <i class="fas fa-camera"></i> Mark My Attendance
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
                     {% endfor %}
                 {% else %}
@@ -227,21 +257,51 @@
         </div>
     </div>
     {% endif %}
+
+    <!-- ══════ QR MODALS ══════ -->
+    
+    <!-- QR Display Modal (Government) -->
+    <div id="qr-display-modal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; align-items:center; justify-content:center;">
+        <div class="glass-card" style="width:90%; max-width:400px; padding:2rem; text-align:center; position:relative;">
+            <button onclick="closeQRModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">&times;</button>
+            <h3 id="qr-modal-title" style="margin-bottom:1.5rem; color:var(--primary-color);">Camp Admission QR</h3>
+            <div id="qrcode-container" style="background:white; padding:1.5rem; border-radius:15px; display:inline-block; margin-bottom:1.5rem;"></div>
+            <p style="font-size:0.85rem; color:var(--text-secondary);">Ask citizens to scan this code via their "Mark My Attendance" tool.</p>
+        </div>
+    </div>
+
+    <!-- Scanner Modal (Citizen) -->
+    <div id="scanner-modal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; align-items:center; justify-content:center;">
+        <div class="glass-card" style="width:95%; max-width:500px; padding:1.5rem; text-align:center; position:relative;">
+            <button onclick="stopScanner()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">&times;</button>
+            <h3 style="margin-bottom:1rem; color:var(--primary-color);"><i class="fas fa-camera"></i> Scanning QR Code</h3>
+            <div id="reader" style="width:100%; border-radius:15px; overflow:hidden; background:#111;"></div>
+            <div id="scan-result" style="margin-top:1rem; font-weight:700;"></div>
+            <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:1rem;">Point your camera at the official training camp QR code.</p>
+        </div>
+    </div>
 </section>
+
+<!-- QR Code & Scanner Libraries -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
 // Toggle form
-document.getElementById('toggle-training-form').addEventListener('click', function() {
-    const form = document.getElementById('training-form');
-    if (form.style.display === 'none') {
-        form.style.display = 'flex';
-        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        this.innerHTML = '<i class="fas fa-times-circle"></i> Cancel';
-    } else {
-        form.style.display = 'none';
-        this.innerHTML = '<i class="fas fa-plus-circle"></i> Add Training Event';
-    }
-});
+const toggleBtn = document.getElementById('toggle-training-form');
+if (toggleBtn) {
+    toggleBtn.addEventListener('click', function() {
+        const form = document.getElementById('training-form');
+        if (form.style.display === 'none') {
+            form.style.display = 'flex';
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            this.innerHTML = '<i class="fas fa-times-circle"></i> Cancel';
+        } else {
+            form.style.display = 'none';
+            this.innerHTML = '<i class="fas fa-plus-circle"></i> Add Training Event';
+        }
+    });
+}
 
 // ═══ INTERACTIVE MAP ═══
 (function() {
@@ -304,6 +364,78 @@ document.getElementById('toggle-training-form').addEventListener('click', functi
 
     setTimeout(function() { map.invalidateSize(); }, 300);
 })();
+
+// ═══ QR CODE LOGIC ═══
+let html5QrCode;
+
+function showEventQR(eventId, title) {
+    document.getElementById('qr-modal-title').innerText = title;
+    const container = document.getElementById('qrcode-container');
+    container.innerHTML = ""; // Clear
+    
+    new QRCode(container, {
+        text: "CAMP_ID:" + eventId,
+        width: 250,
+        height: 250,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+    
+    document.getElementById('qr-display-modal').style.display = 'flex';
+}
+
+function closeQRModal() {
+    document.getElementById('qr-display-modal').style.display = 'none';
+}
+
+function startScanner(targetEventId) {
+    document.getElementById('scanner-modal').style.display = 'flex';
+    document.getElementById('scan-result').innerText = "Initializing camera...";
+    
+    html5QrCode = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+    html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
+        // Successful scan
+        if (decodedText === "CAMP_ID:" + targetEventId) {
+            stopScanner();
+            markAttendance(targetEventId);
+        } else {
+            document.getElementById('scan-result').innerHTML = `<span style="color:var(--danger)">Wrong QR Code! This is for another camp.</span>`;
+        }
+    }).catch(err => {
+        document.getElementById('scan-result').innerText = "Camera error: " + err;
+    });
+}
+
+function stopScanner() {
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            document.getElementById('scanner-modal').style.display = 'none';
+        }).catch(err => console.error(err));
+    } else {
+        document.getElementById('scanner-modal').style.display = 'none';
+    }
+}
+
+function markAttendance(eventId) {
+    fetch('/api/mark-attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qr_data: 'CAMP_ID:' + eventId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => alert('Error marking attendance: ' + error));
+}
 </script>
 
 <style>

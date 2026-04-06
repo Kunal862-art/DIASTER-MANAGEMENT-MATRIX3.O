@@ -25,6 +25,9 @@
                     <li><a href="{{ url_for('reports') }}">Incidents</a></li>
                     <li><a href="{{ url_for('attendance') }}">Personnel</a></li>
                     <li><a href="{{ url_for('training') }}">Training Events</a></li>
+                    {% if current_user.is_authenticated and current_user.role == 'government' %}
+                    <li><a href="{{ url_for('admissions') }}">Admissions</a></li>
+                    {% endif %}
                     {% if current_user.is_authenticated %}
                     <li><a href="{{ url_for('logout') }}" class="btn-outline">Logout</a></li>
                     {% else %}
@@ -38,13 +41,19 @@
 
     <main>
         <div class="container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
+            <!-- Floating Flash Messages -->
+            <div class="flash-messages-container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                    <span class="close-alert" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
 
             {% block content %}{% endblock %}
         </div>

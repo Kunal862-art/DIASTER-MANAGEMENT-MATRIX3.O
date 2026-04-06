@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Training Admissions - SAFESTEP{% endblock %}
+
+{% block content %}
+<div class="reports-section" style="padding-top: 100px;">
+    <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="font-size: 3rem; font-weight: 900; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            🎖️ Admissions Board
+        </h1>
+        <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto; margin-top: 1rem;">
+            Real-time tracking of citizens admitted to disaster response training camps via secure QR verification.
+        </p>
+    </div>
+
+    <div class="glass-card" style="padding: 2rem; border-radius: 24px; overflow: hidden; position: relative; border: 1px solid var(--glass-border); background: var(--bg-surface); backdrop-filter: var(--glass-blur);">
+        {% if admissions %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--glass-border); color: var(--primary-color); font-weight: 800; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">
+                        <th style="padding: 1.5rem 1rem;">Citizen Name</th>
+                        <th style="padding: 1.5rem 1rem;">Training Camp</th>
+                        <th style="padding: 1.5rem 1rem;">Role</th>
+                        <th style="padding: 1.5rem 1rem;">Check-in Time</th>
+                        <th style="padding: 1.5rem 1rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody style="color: var(--text-primary);">
+                    {% for adm in admissions %}
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: var(--transition);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                        <td style="padding: 1.5rem 1rem;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.8rem; color: #0B0E14;">
+                                    {{ adm.user.username[0]|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 700;">{{ adm.user.username }}</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">{{ adm.user.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 1.5rem 1rem;">
+                            <div style="font-weight: 600;">{{ adm.event.title }}</div>
+                            <div style="font-size: 0.75rem; color: var(--primary-color);">{{ adm.event.location }}</div>
+                        </td>
+                        <td style="padding: 1.5rem 1rem;">
+                            <span style="background: rgba(0, 242, 255, 0.1); color: var(--primary-color); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">{{ adm.user.role|upper }}</span>
+                        </td>
+                        <td style="padding: 1.5rem 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                            {{ adm.admitted_at.strftime('%b %d, %H:%M') }}
+                        </td>
+                        <td style="padding: 1.5rem 1rem;">
+                            <span style="color: var(--success); font-weight: 800; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-check-circle"></i> ADMITTED
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 4rem 2rem;">
+            <div style="font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.3;">📋</div>
+            <h3 style="color: var(--text-secondary);">No admissions recorded yet.</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 5px;">Once citizens scan the training camp QR codes, they will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

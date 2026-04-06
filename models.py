@@ -51,3 +51,11 @@ class TrainingEvent(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref=db.backref('training_events', lazy=True))
+class TrainingAdmission(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    training_event_id = db.Column(db.Integer, db.ForeignKey('training_event.id'), nullable=False)
+    admitted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref=db.backref('admissions', lazy=True))
+    event = db.relationship('TrainingEvent', backref=db.backref('admissions', lazy=True))

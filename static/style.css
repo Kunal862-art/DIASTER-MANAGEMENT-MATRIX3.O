@@ -753,7 +753,79 @@ input:focus {
 }
 
 /* ═══════════════════════════════════════════════════════════ */
-/* TRAINING EVENTS PAGE                                        */
+/* ALERTS & FLASH MESSAGES                                     */
+/* ═══════════════════════════════════════════════════════════ */
+.flash-messages-container {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+    pointer-events: none; /* Let clicks pass through empty areas */
+}
+
+.alert {
+    pointer-events: auto; /* Re-enable clicks for the alert itself */
+    padding: 1rem 1.5rem;
+    margin-bottom: 0;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: slideDown 0.3s ease-out;
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+}
+
+.close-alert {
+    margin-left: auto;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--text-secondary);
+    transition: var(--transition);
+}
+
+.close-alert:hover {
+    color: var(--text-primary);
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.alert-error::before {
+    content: "⚠️";
+    font-size: 1.2rem;
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+.alert-success::before {
+    content: "✅";
+    font-size: 1.2rem;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* FORMS                                                       */
 /* ═══════════════════════════════════════════════════════════ */
 .training-section { padding: 8rem 0 4rem; }
 
