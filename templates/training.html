@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Training Events - SAFESTEP{% endblock %}
+
+{% block content %}
+<section class="training-section">
+    <div class="section-header">
+        <h2><i class="fas fa-chalkboard-teacher"></i> Training Events</h2>
+        <p>Track disaster preparedness drills across all zones and institutions.</p>
+    </div>
+
+    <div class="training-grid">
+        <!-- ══════ Column 1: Completed ══════ -->
+        <div class="training-column">
+            <div class="training-col-header completed-header">
+                <div class="col-icon"><i class="fas fa-check-circle"></i></div>
+                <h3>Completed</h3>
+                <span class="col-count">{{ completed|length }}</span>
+            </div>
+            <div class="training-col-body">
+                {% if completed %}
+                    {% for event in completed %}
+                    <div class="training-card completed">
+                        <div class="tc-type-badge">{{ event.event_type }}</div>
+                        <h4>{{ event.title }}</h4>
+                        <p class="tc-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}</p>
+                        <div class="tc-meta">
+                            <span><i class="fas fa-calendar-check"></i> {{ event.start_date.strftime('%b %d, %Y') }}</span>
+                            <span><i class="fas fa-users"></i> {{ event.participants }} joined</span>
+                        </div>
+                        {% if event.description %}
+                        <p class="tc-desc">{{ event.description }}</p>
+                        {% endif %}
+                        <div class="tc-status-bar completed-bar"></div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="training-empty">
+                        <i class="fas fa-clipboard-check"></i>
+                        <p>No completed training events yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ══════ Column 2: Ongoing ══════ -->
+        <div class="training-column">
+            <div class="training-col-header ongoing-header">
+                <div class="col-icon"><i class="fas fa-spinner fa-pulse"></i></div>
+                <h3>Ongoing</h3>
+                <span class="col-count">{{ ongoing|length }}</span>
+            </div>
+            <div class="training-col-body">
+                {% if ongoing %}
+                    {% for event in ongoing %}
+                    <div class="training-card ongoing">
+                        <div class="tc-type-badge ongoing-badge">{{ event.event_type }}</div>
+                        <h4>{{ event.title }}</h4>
+                        <p class="tc-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}</p>
+                        <div class="tc-meta">
+                            <span><i class="fas fa-calendar-day"></i> {{ event.start_date.strftime('%b %d, %Y') }}</span>
+                            <span><i class="fas fa-users"></i> {{ event.participants }} active</span>
+                        </div>
+                        {% if event.description %}
+                        <p class="tc-desc">{{ event.description }}</p>
+                        {% endif %}
+                        <div class="tc-status-bar ongoing-bar">
+                            <div class="ongoing-pulse"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="training-empty">
+                        <i class="fas fa-hourglass-half"></i>
+                        <p>No ongoing training events.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ══════ Column 3: Upcoming ══════ -->
+        <div class="training-column">
+            <div class="training-col-header upcoming-header">
+                <div class="col-icon"><i class="fas fa-calendar-alt"></i></div>
+                <h3>Upcoming</h3>
+                <span class="col-count">{{ upcoming|length }}</span>
+            </div>
+            <div class="training-col-body">
+                {% if upcoming %}
+                    {% for event in upcoming %}
+                    <div class="training-card upcoming">
+                        <div class="tc-type-badge upcoming-badge">{{ event.event_type }}</div>
+                        <h4>{{ event.title }}</h4>
+                        <p class="tc-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}</p>
+                        <div class="tc-meta">
+                            <span><i class="fas fa-calendar-plus"></i> {{ event.start_date.strftime('%b %d, %Y') }}</span>
+                            <span><i class="fas fa-users"></i> {{ event.participants }} expected</span>
+                        </div>
+                        {% if event.description %}
+                        <p class="tc-desc">{{ event.description }}</p>
+                        {% endif %}
+                        <div class="tc-status-bar upcoming-bar"></div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="training-empty">
+                        <i class="fas fa-rocket"></i>
+                        <p>No upcoming training events scheduled.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════ Add Training Event Button ══════ -->
+    <div class="training-add-section">
+        <button class="btn-add-training" id="toggle-training-form">
+            <i class="fas fa-plus-circle"></i> Add Training Event
+        </button>
+    </div>
+
+    <!-- ══════ Add Training Event Form (Hidden by default) ══════ -->
+    <div class="training-form-wrapper" id="training-form" style="display:none;">
+        <div class="auth-card" style="max-width:700px; animation:none;">
+            <h3 style="margin-bottom:2rem; text-align:center;">
+                <i class="fas fa-plus-circle" style="color:var(--primary-color)"></i> New Training Event
+            </h3>
+            <form method="POST" action="{{ url_for('training') }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Event Title</label>
+                        <input type="text" name="title" placeholder="e.g. Fire Drill - Zone A" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" name="location" placeholder="e.g. Delhi Public School" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Event Type</label>
+                        <select name="event_type" required>
+                            <option value="">Select type...</option>
+                            <option value="Fire Drill">🔥 Fire Drill</option>
+                            <option value="Earthquake Drill">🌍 Earthquake Drill</option>
+                            <option value="Flood Preparedness">🌊 Flood Preparedness</option>
+                            <option value="First Aid Training">🏥 First Aid Training</option>
+                            <option value="Evacuation Drill">🚨 Evacuation Drill</option>
+                            <option value="Search & Rescue">🔍 Search & Rescue</option>
+                            <option value="Other">📋 Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" required>
+                            <option value="upcoming">📅 Upcoming</option>
+                            <option value="ongoing">⏳ Ongoing</option>
+                            <option value="completed">✅ Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date & Time</label>
+                        <input type="datetime-local" name="start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Date & Time (optional)</label>
+                        <input type="datetime-local" name="end_date">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Expected Participants</label>
+                        <input type="number" name="participants" placeholder="0" min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description (optional)</label>
+                    <textarea name="description" rows="3" placeholder="Brief details about the training event..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary-block">
+                    <i class="fas fa-paper-plane"></i> Submit Training Event
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+document.getElementById('toggle-training-form').addEventListener('click', function() {
+    const form = document.getElementById('training-form');
+    if (form.style.display === 'none') {
+        form.style.display = 'flex';
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        this.innerHTML = '<i class="fas fa-times-circle"></i> Cancel';
+    } else {
+        form.style.display = 'none';
+        this.innerHTML = '<i class="fas fa-plus-circle"></i> Add Training Event';
+    }
+});
+</script>
+{% endblock %}

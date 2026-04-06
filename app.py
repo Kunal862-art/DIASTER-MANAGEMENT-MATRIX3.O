@@ -4,7 +4,7 @@ from io import StringIO
 from flask import Flask, render_template, redirect, url_for, request, flash, send_file, Response, session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Report, Attendance, ChatMessage
+from models import db, User, Report, Attendance, ChatMessage, TrainingEvent
 from datetime import datetime
 import google.generativeai as genai
 
@@ -147,6 +147,47 @@ def attendance():
         
     all_attendance = Attendance.query.all()
     return render_template('attendance.html', attendance_list=all_attendance)
+
+@app.route('/training', methods=['GET', 'POST'])
+def training():
+    if request.method == 'POST':
+        if not current_user.is_authenticated:
+            flash('Please log in to add a training event.', 'error')
+            return redirect(url_for('login'))
+        
+        title = request.form.get('title')
+        description = request.form.get('description')
+        location = request.form.get('location')
+        event_type = request.form.get('event_type')
+        status = request.form.get('status')
+        start_date_str = request.form.get('start_date')
+        end_date_str = request.form.get('end_date')
+        participants = request.form.get('participants', 0, type=int)
+        
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%dT%H:%M') if start_date_str else datetime.utcnow()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M') if end_date_str else None
+        
+        new_event = TrainingEvent(
+            title=title,
+            description=description,
+            location=location,
+            event_type=event_type,
+            status=status,
+            start_date=start_date,
+            end_date=end_date,
+            participants=participants,
+            user_id=current_user.id
+        )
+        db.session.add(new_event)
+        db.session.commit()
+        flash('Training event added successfully!', 'success')
+        return redirect(url_for('training'))
+    
+    completed = TrainingEvent.query.filter_by(status='completed').order_by(TrainingEvent.start_date.desc()).all()
+    ongoing = TrainingEvent.query.filter_by(status='ongoing').order_by(TrainingEvent.start_date.desc()).all()
+    upcoming = TrainingEvent.query.filter_by(status='upcoming').order_by(TrainingEvent.start_date.asc()).all()
+    
+    return render_template('training.html', completed=completed, ongoing=ongoing, upcoming=upcoming)
 
 @app.route('/download/reports')
 def download_reports():

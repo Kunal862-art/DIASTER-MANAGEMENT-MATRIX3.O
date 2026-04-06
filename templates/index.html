@@ -5,10 +5,11 @@
 {% block content %}
 <section class="hero">
     <div class="container hero-container">
-        <div class="hero-content">
+        <div class="hero-content glass-resonance">
             <div class="hero-tag">SECURE • RELIABLE • INSTANT</div>
             <h1 id="typewriter-h1">Manage Disasters with Confidence.</h1>
-            <p>A high-performance platform for real-time incident reporting and personnel tracking. Built for clarity when every second counts.</p>
+            <p>A high-performance platform for real-time incident reporting and personnel tracking. Built for clarity
+                when every second counts.</p>
             <div class="hero-btns">
                 <a href="{{ url_for('reports') }}" class="btn-primary-lg">Report Incident</a>
                 <a href="{{ url_for('attendance') }}" class="btn-outline">Team Status</a>
@@ -16,18 +17,23 @@
         </div>
         <div class="hero-visual">
             <div class="hero-carousel-scene">
-                <div class="hero-carousel">
-                    <div class="hero-carousel-item item-1">
-                        <img src="{{ url_for('static', filename='images/hero_command.png') }}" alt="Command Center">
-                    </div>
-                    <div class="hero-carousel-item item-2">
-                        <img src="{{ url_for('static', filename='images/hero_rescue.png') }}" alt="Rescue Operation">
-                    </div>
-                    <div class="hero-carousel-item item-3">
-                        <img src="{{ url_for('static', filename='images/hero_medical.png') }}" alt="Medical Response">
-                    </div>
-                    <div class="hero-carousel-item item-4">
-                        <img src="{{ url_for('static', filename='images/hero_satellite.png') }}" alt="Satellite Intelligence">
+                <div class="hero-float-wrapper">
+                    <div class="hero-carousel">
+                        <div class="hero-carousel-item item-1">
+                            <img src="{{ url_for('static', filename='images/hero_command.png') }}" alt="Command Center">
+                        </div>
+                        <div class="hero-carousel-item item-2">
+                            <img src="{{ url_for('static', filename='images/hero_rescue.png') }}"
+                                alt="Rescue Operation">
+                        </div>
+                        <div class="hero-carousel-item item-3">
+                            <img src="{{ url_for('static', filename='images/hero_medical.png') }}"
+                                alt="Medical Response">
+                        </div>
+                        <div class="hero-carousel-item item-4">
+                            <img src="{{ url_for('static', filename='images/hero_satellite.png') }}"
+                                alt="Satellite Intelligence">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -57,6 +63,23 @@
                 <h3>Robust Insights</h3>
                 <p>Professional-grade reports and CSV exports for deep-dive analysis.</p>
             </div>
+            <div class="feature-card">
+                <i class="fas fa-vault"></i>
+                <h3>Economic Impact</h3>
+                <p>Saves money by reducing property damage through proactive preparedness and real-time data insights.
+                </p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-graduation-cap"></i>
+                <h3>Educational Training</h3>
+                <p>Integrating disaster awareness into schools and communities to prepare the next generation.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-hand-holding-heart"></i>
+                <h3>Social Coordination</h3>
+                <p>Helping people act faster and smarter with clear guides that reduce stress and confusion during
+                    emergencies.</p>
+            </div>
         </div>
     </div>
 </section>
@@ -69,20 +92,20 @@
         </div>
         <div class="report-list">
             {% if reports %}
-                {% for report in reports %}
-                    <div class="report-item">
-                        <div class="report-type">{{ report.disaster_type }}</div>
-                        <div class="report-info">
-                            <h4>{{ report.title }}</h4>
-                            <p>{{ report.location }} • {{ report.date_reported.strftime('%b %d, %H:%M') }}</p>
-                        </div>
-                        <div class="report-badge {{ report.severity|lower }}">{{ report.severity }}</div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="card">
-                    <p class="empty-state">No recent reports recorded in the system.</p>
+            {% for report in reports %}
+            <div class="report-item">
+                <div class="report-type">{{ report.disaster_type }}</div>
+                <div class="report-info">
+                    <h4>{{ report.title }}</h4>
+                    <p>{{ report.location }} • {{ report.date_reported.strftime('%b %d, %H:%M') }}</p>
                 </div>
+                <div class="report-badge {{ report.severity|lower }}">{{ report.severity }}</div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="card">
+                <p class="empty-state">No recent reports recorded in the system.</p>
+            </div>
             {% endif %}
         </div>
     </div>

@@ -35,3 +35,17 @@ class ChatMessage(db.Model):
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref=db.backref('messages', lazy=True, cascade="all, delete-orphan"))
+
+class TrainingEvent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    location = db.Column(db.String(200), nullable=False)
+    event_type = db.Column(db.String(100), nullable=False)  # 'Fire Drill', 'Earthquake Drill', 'Flood Preparedness', etc.
+    status = db.Column(db.String(20), nullable=False, default='upcoming')  # 'completed', 'ongoing', 'upcoming'
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime, nullable=True)
+    participants = db.Column(db.Integer, default=0)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user = db.relationship('User', backref=db.backref('training_events', lazy=True))
