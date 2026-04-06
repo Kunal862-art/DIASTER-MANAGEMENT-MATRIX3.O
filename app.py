@@ -163,6 +163,8 @@ def training():
         start_date_str = request.form.get('start_date')
         end_date_str = request.form.get('end_date')
         participants = request.form.get('participants', 0, type=int)
+        latitude = request.form.get('latitude', type=float)
+        longitude = request.form.get('longitude', type=float)
         
         start_date = datetime.strptime(start_date_str, '%Y-%m-%dT%H:%M') if start_date_str else datetime.utcnow()
         end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M') if end_date_str else None
@@ -176,6 +178,8 @@ def training():
             start_date=start_date,
             end_date=end_date,
             participants=participants,
+            latitude=latitude,
+            longitude=longitude,
             user_id=current_user.id
         )
         db.session.add(new_event)
@@ -183,11 +187,73 @@ def training():
         flash('Training event added successfully!', 'success')
         return redirect(url_for('training'))
     
+    # Seed sample data if empty
+    if TrainingEvent.query.count() == 0:
+        _seed_training_data()
+    
     completed = TrainingEvent.query.filter_by(status='completed').order_by(TrainingEvent.start_date.desc()).all()
     ongoing = TrainingEvent.query.filter_by(status='ongoing').order_by(TrainingEvent.start_date.desc()).all()
     upcoming = TrainingEvent.query.filter_by(status='upcoming').order_by(TrainingEvent.start_date.asc()).all()
     
     return render_template('training.html', completed=completed, ongoing=ongoing, upcoming=upcoming)
+
+@app.route('/api/training-events')
+def api_training_events():
+    events = TrainingEvent.query.all()
+    result = []
+    for e in events:
+        if e.latitude and e.longitude:
+            result.append({
+                'id': e.id,
+                'title': e.title,
+                'location': e.location,
+                'event_type': e.event_type,
+                'status': e.status,
+                'start_date': e.start_date.strftime('%b %d, %Y'),
+                'participants': e.participants,
+                'lat': e.latitude,
+                'lng': e.longitude,
+                'description': e.description or ''
+            })
+    return {'events': result}
+
+def _seed_training_data():
+    """Seeds realistic demo training events with coordinates across India."""
+    samples = [
+        TrainingEvent(title='Fire Safety Drill', location='Delhi Public School, Dwarka', event_type='Fire Drill',
+                      status='completed', start_date=datetime(2026, 3, 15, 10, 0), participants=120,
+                      latitude=28.5921, longitude=77.0460, user_id=0),
+        TrainingEvent(title='Earthquake Response Training', location='IIT Bombay Campus', event_type='Earthquake Drill',
+                      status='completed', start_date=datetime(2026, 3, 20, 9, 0), participants=250,
+                      latitude=19.1334, longitude=72.9133, user_id=0),
+        TrainingEvent(title='Flood Evacuation Workshop', location='Patna Municipal Corp', event_type='Flood Preparedness',
+                      status='completed', start_date=datetime(2026, 3, 25, 11, 0), participants=85,
+                      latitude=25.6093, longitude=85.1376, user_id=0),
+        TrainingEvent(title='Community First Aid Camp', location='Jaipur City Hospital', event_type='First Aid Training',
+                      status='ongoing', start_date=datetime(2026, 4, 5, 8, 0), participants=65,
+                      latitude=26.9124, longitude=75.7873, user_id=0),
+        TrainingEvent(title='School Evacuation Drill', location='Kendriya Vidyalaya, Chennai', event_type='Evacuation Drill',
+                      status='ongoing', start_date=datetime(2026, 4, 4, 10, 30), participants=180,
+                      latitude=13.0827, longitude=80.2707, user_id=0),
+        TrainingEvent(title='Industrial Fire Response', location='Sector 17 Industrial Area, Chandigarh', event_type='Fire Drill',
+                      status='ongoing', start_date=datetime(2026, 4, 6, 14, 0), participants=45,
+                      latitude=30.7415, longitude=76.7682, user_id=0),
+        TrainingEvent(title='Cyclone Preparedness Drive', location='Visakhapatnam Port Area', event_type='Flood Preparedness',
+                      status='upcoming', start_date=datetime(2026, 4, 15, 9, 0), participants=200,
+                      latitude=17.6868, longitude=83.2185, user_id=0),
+        TrainingEvent(title='Search & Rescue Mock Drill', location='Uttarakhand Mountain Institute', event_type='Search & Rescue',
+                      status='upcoming', start_date=datetime(2026, 4, 20, 7, 0), participants=60,
+                      latitude=30.0869, longitude=79.3239, user_id=0),
+        TrainingEvent(title='Hospital Emergency Protocol', location='AIIMS New Delhi', event_type='First Aid Training',
+                      status='upcoming', start_date=datetime(2026, 4, 25, 10, 0), participants=150,
+                      latitude=28.5672, longitude=77.2100, user_id=0),
+        TrainingEvent(title='Tsunami Alert Workshop', location='Kochi Naval Base', event_type='Flood Preparedness',
+                      status='upcoming', start_date=datetime(2026, 5, 1, 9, 0), participants=90,
+                      latitude=9.9312, longitude=76.2673, user_id=0),
+    ]
+    for s in samples:
+        db.session.add(s)
+    db.session.commit()
 
 @app.route('/download/reports')
 def download_reports():
