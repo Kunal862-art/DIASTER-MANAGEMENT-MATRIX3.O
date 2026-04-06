@@ -9,7 +9,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
-    role = db.Column(db.String(50), default='user') # 'admin' or 'user'
+    role = db.Column(db.String(50), default='citizen') # 'government' or 'citizen'
 
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,3 +35,27 @@ class ChatMessage(db.Model):
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref=db.backref('messages', lazy=True, cascade="all, delete-orphan"))
+
+class TrainingEvent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    location = db.Column(db.String(200), nullable=False)
+    event_type = db.Column(db.String(100), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='upcoming')
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime, nullable=True)
+    participants = db.Column(db.Integer, default=0)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user = db.relationship('User', backref=db.backref('training_events', lazy=True))
+class TrainingAdmission(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    training_event_id = db.Column(db.Integer, db.ForeignKey('training_event.id'), nullable=False)
+    admitted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref=db.backref('admissions', lazy=True))
+    event = db.relationship('TrainingEvent', backref=db.backref('admissions', lazy=True))
