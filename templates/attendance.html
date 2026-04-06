@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Personnel - SAFESTEP{% endblock %}
+
+{% block content %}
+<div class="attendance-section">
+    <div class="attendance-header">
+        <h1>Team Availability Terminal</h1>
+        <p>Real-time status monitoring for all registered SAFESTEP personnel.</p>
+    </div>
+
+    <div class="attendance-grid">
+        {% if current_user.is_authenticated %}
+            <div class="card attendance-status-card">
+                <h3>Update Your Status</h3>
+                <p>Ensure your current status reflects your actual availability in the field.</p>
+                <form method="POST">
+                    <div class="status-options">
+                        <label class="status-option">
+                            <input type="radio" name="status" value="Safe" required>
+                            <span class="status-btn safe"><i class="fas fa-check-circle"></i> SAFE</span>
+                        </label>
+                        <label class="status-option">
+                            <input type="radio" name="status" value="Needs Help">
+                            <span class="status-btn help"><i class="fas fa-exclamation-triangle"></i> EMERGENCY</span>
+                        </label>
+                        <label class="status-option">
+                            <input type="radio" name="status" value="Missing">
+                            <span class="status-btn missing"><i class="fas fa-question-circle"></i> MISSING</span>
+                        </label>
+                        <label class="status-option">
+                            <input type="radio" name="status" value="Volunteering">
+                            <span class="status-btn volunteer"><i class="fas fa-hands-helping"></i> EN ROUTE</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary-block">Update My Status</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="card attendance-status-card guest-cta">
+                <h3>Personnel Access Only</h3>
+                <p>Only registered personnel can broadcast their heartbeat status.</p>
+                <div class="cta-btns">
+                    <a href="{{ url_for('login') }}" class="btn-primary-block">Login to Update</a>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="card attendance-list-card">
+            <h3>Active Personnel Log</h3>
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Personnel Identity</th>
+                        <th>Current Status</th>
+                        <th>Last Sync</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if attendance_list %}
+                        {% for record in attendance_list %}
+                            <tr>
+                                <td class="user-cell">
+                                    <div class="user-avatar">{{ record.user.username[0]|upper }}</div>
+                                    <span>{{ record.user.username }}</span>
+                                </td>
+                                <td>
+                                    <span class="status-pill {{ record.status.lower().replace(' ', '-') }}">
+                                        {{ record.status }}
+                                    </span>
+                                </td>
+                                <td>{{ record.last_updated.strftime('%H:%M • %b %d') }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3" class="empty-cell">No active personnel heartbeats detected.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
