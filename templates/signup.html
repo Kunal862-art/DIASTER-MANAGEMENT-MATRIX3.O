@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - SAFESTEP{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Create Account</h2>
+        <p>Join our mission to manage crises effectively</p>
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Pick a username">
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Choose a secure password">
+            </div>
+            <button type="submit" class="btn-primary-block">Sign Up</button>
+        </form>
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

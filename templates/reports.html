@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - SAFESTEP{% endblock %}
+
+{% block content %}
+<div class="reports-header-section">
+    <h1>All Incident Reports</h1>
+    <p>A comprehensive log of all disasters reported within the system.</p>
+    <a href="{{ url_for('download_reports') }}" class="btn-primary-lg"><i class="fas fa-file-csv"></i> Export Incident Data (CSV)</a>
+</div>
+
+<div class="reports-grid">
+    <div class="card reports-form-card">
+        <h3>Submit Incident Data</h3>
+        <p>Ensure all fields are accurate before submission.</p>
+        <form method="POST">
+            <div class="form-row">
+                <input type="text" name="title" required placeholder="Incident Title">
+            </div>
+            <div class="form-row">
+                <input type="text" name="location" required placeholder="City/Region/Location">
+            </div>
+            <div class="form-row">
+                <select name="disaster_type" required>
+                    <option value="" disabled selected>Incident Type</option>
+                    <option value="Flood">Flood</option>
+                    <option value="Earthquake">Earthquake</option>
+                    <option value="Fire">Fire</option>
+                    <option value="Cyclone">Cyclone</option>
+                    <option value="Pandemic">Pandemic</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <select name="severity" required>
+                    <option value="" disabled selected>Threat Level</option>
+                    <option value="Low">Low (Minimum Impact)</option>
+                    <option value="Medium">Medium (Attention Required)</option>
+                    <option value="High">High (Urgent Action)</option>
+                    <option value="Critical">Critical (Immediate Response)</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <textarea name="description" required placeholder="Detailed Incident Description"></textarea>
+            </div>
+            <button type="submit" class="btn-primary-block">Submit to Command Center</button>
+        </form>
+    </div>
+
+    <div class="reports-list">
+        <h3>Incident Log</h3>
+        {% if reports %}
+            {% for report in reports %}
+                <div class="report-entry card">
+                    <div class="report-badge {{ report.severity|lower }}">{{ report.severity }}</div>
+                    <div class="report-header">
+                        <h4>{{ report.title }}</h4>
+                        <span class="type-tag">{{ report.disaster_type }}</span>
+                    </div>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> {{ report.location }}</p>
+                    <p class="desc">{{ report.description }}</p>
+                    <div class="report-footer">
+                        <span><i class="far fa-calendar-alt"></i> {{ report.date_reported.strftime('%Y-%m-%d %H:%M') }}</span>
+                        <span>REPORT ID: #{{ report.id }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No incidents recorded in the system.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

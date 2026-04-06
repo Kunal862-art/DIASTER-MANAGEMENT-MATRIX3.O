@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Home - SAFESTEP{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-tag">SECURE • RELIABLE • INSTANT</div>
+    <h1>Manage Disasters with Confidence.</h1>
+    <p>A high-performance platform for real-time incident reporting and personnel tracking. Built for clarity when every second counts.</p>
+    <div class="hero-btns">
+        <a href="{{ url_for('reports') }}" class="btn-primary-lg">Report Incident</a>
+        <a href="{{ url_for('attendance') }}" class="btn-outline">Team Status</a>
+    </div>
+    
+    <div class="hero-visual">
+        <img src="{{ url_for('static', filename='images/hero_redesign.png') }}" alt="Redesigned Hero Image">
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <div class="section-header">
+            <h2>Our Core Services</h2>
+            <p>Designed for professional disaster coordination teams.</p>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Instant Alerts</h3>
+                <p>Submit critical incident data in under 30 seconds with automated geo-tagging.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-user-shield"></i>
+                <h3>Safe Tracking</h3>
+                <p>Monitor real-time status updates from all field personnel and volunteers.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-layer-group"></i>
+                <h3>Robust Insights</h3>
+                <p>Professional-grade reports and CSV exports for deep-dive analysis.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="recent-reports">
+    <div class="container">
+        <div class="section-header">
+            <h2>Recent Incidents</h2>
+            <a href="{{ url_for('reports') }}" class="btn-outline">View Comprehensive List</a>
+        </div>
+        <div class="report-list">
+            {% if reports %}
+                {% for report in reports %}
+                    <div class="report-item">
+                        <div class="report-type">{{ report.disaster_type }}</div>
+                        <div class="report-info">
+                            <h4>{{ report.title }}</h4>
+                            <p>{{ report.location }} • {{ report.date_reported.strftime('%b %d, %H:%M') }}</p>
+                        </div>
+                        <div class="report-badge {{ report.severity|lower }}">{{ report.severity }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <p class="empty-state">No recent reports recorded in the system.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
