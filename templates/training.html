@@ -40,7 +40,13 @@
         </div>
     </div>
 
-    <div class="training-grid">
+    <!-- ══════ FILTER BAR ══════ -->
+    <div style="margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 1.5rem 2rem; border-radius: 16px; border: 1px solid var(--glass-border);">
+        <h3 style="margin: 0; font-size: 1.2rem;"><i class="fas fa-filter" style="color: var(--primary-color); margin-right: 8px;"></i> Filter Events</h3>
+        <input type="text" id="trainingFilter" placeholder="Search by title, location, or type..." style="width: 100%; max-width: 400px; padding: 0.8rem 1.5rem; border-radius: 20px; border: 1px solid rgba(0, 242, 255, 0.3); background: rgba(0,0,0,0.2); color: #fff; outline: none;">
+    </div>
+
+    <div class="training-grid" style="margin-top: 1.5rem;">
         <!-- ══════ Column 1: Completed ══════ -->
         <div class="training-column">
             <div class="training-col-header completed-header">
@@ -376,6 +382,25 @@ function showEventQR(eventId, title) {
 function closeQRModal() {
     document.getElementById('qr-display-modal').style.display = 'none';
 }
+
+// Custom Training Event Filter Logic
+document.addEventListener('DOMContentLoaded', function() {
+    const filterInput = document.getElementById('trainingFilter');
+    if(filterInput) {
+        filterInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.training-card');
+            cards.forEach(card => {
+                const textContext = card.innerText.toLowerCase();
+                if(textContext.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+});
 </script>
 
 <style>

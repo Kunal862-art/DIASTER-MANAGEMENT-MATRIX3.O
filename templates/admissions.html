@@ -3,14 +3,17 @@
 {% block title %}Training Admissions - SAFESTEP{% endblock %}
 
 {% block content %}
-<div class="reports-section" style="padding-top: 100px;">
-    <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+<div class="reports-section" style="padding-top: 200px;">
+    <div class="reports-header-section" style="text-align: center; margin-bottom: 3rem;">
         <h1 style="font-size: 3rem; font-weight: 900; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
             🎖️ Admissions Board
         </h1>
         <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto; margin-top: 1rem;">
             Real-time tracking of citizens admitted to disaster response training camps via secure QR verification.
         </p>
+        <div style="margin-top: 2rem;">
+            <a href="{{ url_for('download_admissions') }}" class="btn-primary-lg" style="display: inline-block; text-decoration: none;"><i class="fas fa-file-csv"></i> Download Attendance Data </a>
+        </div>
     </div>
 
     <div class="glass-card" style="padding: 2rem; border-radius: 24px; overflow: hidden; position: relative; border: 1px solid var(--glass-border); background: var(--bg-surface); backdrop-filter: var(--glass-blur);">
