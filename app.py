@@ -7,7 +7,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Report, Attendance, ChatMessage, TrainingEvent, TrainingAdmission
 from datetime import datetime
 import google.generativeai as genai
-
+import requests
+import xml.etree.ElementTree as ET
+import time
 import api_config
 
 # Initialize Gemini AI from the external config file to prevent hardcoded leaks
@@ -297,7 +299,88 @@ def sync_attendance_api():
         new_att = Attendance(user_id=current_user.id, status=status)
         db.session.add(new_att)
     db.session.commit()
+    db.session.commit()
     return {'success': True}
+
+# Simple in-memory cache to prevent spamming GDACS API
+_gdacs_cache = {
+    'data': [],
+    'last_fetched': 0
+}
+
+def fetch_gdacs_india_alerts():
+    global _gdacs_cache
+    current_time = time.time()
+    
+    # Cache for 15 minutes (900 seconds)
+    if current_time - _gdacs_cache['last_fetched'] < 900 and _gdacs_cache['data']:
+        return _gdacs_cache['data']
+        
+    alerts = []
+    try:
+        # Fetch GDACS 7-day RSS feed
+        response = requests.get('https://www.gdacs.org/xml/rss_7d.xml', timeout=5)
+        if response.status_code == 200:
+            root = ET.fromstring(response.content)
+            for item in root.findall('.//item'):
+                title = item.find('title')
+                desc = item.find('description')
+                pub_date = item.find('pubDate')
+                
+                title_text = title.text if title is not None else ""
+                desc_text = desc.text if desc is not None else ""
+                
+                # Filter strictly for India
+                if 'India' in title_text or 'India' in desc_text:
+                    alerts.append({
+                        'type': 'gdacs_alert',
+                        'title': title_text,
+                        'description': desc_text[:120] + '...' if len(desc_text) > 120 else desc_text,
+                        'date': pub_date.text if pub_date is not None else "",
+                        'severity': 'high' if 'Orange' in desc_text or 'Red' in desc_text else 'medium'
+                    })
+                    
+        _gdacs_cache['data'] = alerts[:5]
+        _gdacs_cache['last_fetched'] = current_time
+        return _gdacs_cache['data']
+    except Exception as e:
+        print(f"Error fetching GDACS: {e}")
+        return _gdacs_cache['data']
+
+@app.route('/api/notifications')
+@login_required
+def get_notifications():
+    # 1. Fetch GDACS India alerts
+    external_alerts = fetch_gdacs_india_alerts()
+    
+    # 2. Fetch recent Training Camps added
+    recent_camps = TrainingEvent.query.order_by(TrainingEvent.id.desc()).limit(5).all()
+    
+    notifications = []
+    
+    # Add external alerts
+    for alert in external_alerts:
+        notifications.append({
+            'id': 'ext_' + str(hash(alert['title'])),
+            'type': 'ext_alert',
+            'title': "⚠️ " + alert['title'],
+            'body': alert['description'],
+            'time_str': alert['date'],
+            'icon': 'fa-triangle-exclamation'
+        })
+        
+    # Add internal camp alerts
+    for camp in recent_camps:
+        notifications.append({
+            'id': f'camp_{camp.id}',
+            'type': 'int_camp',
+            'title': f"New Camp: {camp.title}",
+            'body': f"A new {camp.event_type} drill has been added at {camp.location}. Status: {camp.status.upper()}",
+            'time_str': camp.start_date.strftime('%b %d, %Y'),
+            'icon': 'fa-campground'
+        })
+        
+    return {'notifications': notifications}
 
 def _seed_training_data():
     """Seeds realistic demo training events with coordinates across India."""
