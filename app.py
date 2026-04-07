@@ -411,37 +411,47 @@ def get_notifications():
 
 def _seed_training_data():
     """Seeds realistic demo training events with coordinates across India."""
+    # Create an authorized system user dynamically to satisfy PostgreSQL Foreign Key constraints
+    sys_user = User.query.filter_by(username='system_admin').first()
+    if not sys_user:
+        from werkzeug.security import generate_password_hash
+        sys_user = User(username='system_admin', email='system@safestep.gov.in', password=generate_password_hash('systempassword!'), role='government')
+        db.session.add(sys_user)
+        db.session.commit()
+        
+    uid = sys_user.id
+
     samples = [
         TrainingEvent(title='Fire Safety Drill', location='Delhi Public School, Dwarka', event_type='Fire Drill',
                       status='completed', start_date=datetime(2026, 3, 15, 10, 0), participants=120,
-                      latitude=28.5921, longitude=77.0460, user_id=0),
+                      latitude=28.5921, longitude=77.0460, user_id=uid),
         TrainingEvent(title='Earthquake Response Training', location='IIT Bombay Campus', event_type='Earthquake Drill',
                       status='completed', start_date=datetime(2026, 3, 20, 9, 0), participants=250,
-                      latitude=19.1334, longitude=72.9133, user_id=0),
+                      latitude=19.1334, longitude=72.9133, user_id=uid),
         TrainingEvent(title='Flood Evacuation Workshop', location='Patna Municipal Corp', event_type='Flood Preparedness',
                       status='completed', start_date=datetime(2026, 3, 25, 11, 0), participants=85,
-                      latitude=25.6093, longitude=85.1376, user_id=0),
+                      latitude=25.6093, longitude=85.1376, user_id=uid),
         TrainingEvent(title='Community First Aid Camp', location='Jaipur City Hospital', event_type='First Aid Training',
                       status='ongoing', start_date=datetime(2026, 4, 5, 8, 0), participants=65,
-                      latitude=26.9124, longitude=75.7873, user_id=0),
+                      latitude=26.9124, longitude=75.7873, user_id=uid),
         TrainingEvent(title='School Evacuation Drill', location='Kendriya Vidyalaya, Chennai', event_type='Evacuation Drill',
                       status='ongoing', start_date=datetime(2026, 4, 4, 10, 30), participants=180,
-                      latitude=13.0827, longitude=80.2707, user_id=0),
+                      latitude=13.0827, longitude=80.2707, user_id=uid),
         TrainingEvent(title='Industrial Fire Response', location='Sector 17 Industrial Area, Chandigarh', event_type='Fire Drill',
                       status='ongoing', start_date=datetime(2026, 4, 6, 14, 0), participants=45,
-                      latitude=30.7415, longitude=76.7682, user_id=0),
+                      latitude=30.7415, longitude=76.7682, user_id=uid),
         TrainingEvent(title='Cyclone Preparedness Drive', location='Visakhapatnam Port Area', event_type='Flood Preparedness',
                       status='upcoming', start_date=datetime(2026, 4, 15, 9, 0), participants=200,
-                      latitude=17.6868, longitude=83.2185, user_id=0),
+                      latitude=17.6868, longitude=83.2185, user_id=uid),
         TrainingEvent(title='Search & Rescue Mock Drill', location='Uttarakhand Mountain Institute', event_type='Search & Rescue',
                       status='upcoming', start_date=datetime(2026, 4, 20, 7, 0), participants=60,
-                      latitude=30.0869, longitude=79.3239, user_id=0),
+                      latitude=30.0869, longitude=79.3239, user_id=uid),
         TrainingEvent(title='Hospital Emergency Protocol', location='AIIMS New Delhi', event_type='First Aid Training',
                       status='upcoming', start_date=datetime(2026, 4, 25, 10, 0), participants=150,
-                      latitude=28.5672, longitude=77.2100, user_id=0),
+                      latitude=28.5672, longitude=77.2100, user_id=uid),
         TrainingEvent(title='Tsunami Alert Workshop', location='Kochi Naval Base', event_type='Flood Preparedness',
                       status='upcoming', start_date=datetime(2026, 5, 1, 9, 0), participants=90,
-                      latitude=9.9312, longitude=76.2673, user_id=0),
+                      latitude=9.9312, longitude=76.2673, user_id=uid),
     ]
     for s in samples:
         db.session.add(s)
