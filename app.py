@@ -8,8 +8,10 @@ from models import db, User, Report, Attendance, ChatMessage, TrainingEvent, Tra
 from datetime import datetime
 import google.generativeai as genai
 
-# --- Gemini Configuration ---
-genai.configure(api_key="AIzaSyBU9wswRSU3DuN0zZAXWjLEPNZM5hw9wlU")
+import api_config
+
+# Initialize Gemini AI from the external config file to prevent hardcoded leaks
+genai.configure(api_key=api_config.GEMINI_API_KEY)
 
 # System instruction to restrict the AI scope
 SYSTEM_INSTRUCTION = """
@@ -266,6 +268,37 @@ def mark_attendance():
     except Exception as e:
         return {'success': False, 'message': str(e)}, 500
 
+@app.route('/api/sync/reports', methods=['POST'])
+@login_required
+def sync_reports_api():
+    data = request.get_json()
+    new_report = Report(
+        title=data.get('title'),
+        description=data.get('description'),
+        location=data.get('location'),
+        severity=data.get('severity'),
+        disaster_type=data.get('disaster_type'),
+        user_id=current_user.id
+    )
+    db.session.add(new_report)
+    db.session.commit()
+    return {'success': True}
+
+@app.route('/api/sync/attendance', methods=['POST'])
+@login_required
+def sync_attendance_api():
+    data = request.get_json()
+    status = data.get('status')
+    att_record = Attendance.query.filter_by(user_id=current_user.id).first()
+    if att_record:
+        att_record.status = status
+        att_record.last_updated = datetime.utcnow()
+    else:
+        new_att = Attendance(user_id=current_user.id, status=status)
+        db.session.add(new_att)
+    db.session.commit()
+    return {'success': True}
+
 def _seed_training_data():
     """Seeds realistic demo training events with coordinates across India."""
     samples = [
@@ -328,6 +361,40 @@ def download_reports():
 
     response = Response(generate(), mimetype='text/csv')
     response.headers.set('Content-Disposition', 'attachment', filename='disaster_reports.csv')
+    return response
+
+@app.route('/download/admissions')
+@login_required
+def download_admissions():
+    if current_user.role != 'government':
+        flash('Unauthorized. Only government officials can download admission data.', 'error')
+        return redirect(url_for('index'))
+    
+    admissions = TrainingAdmission.query.order_by(TrainingAdmission.admitted_at.desc()).all()
+    
+    def generate():
+        data = StringIO()
+        writer = csv.writer(data)
+        writer.writerow(['Admission ID', 'Trainee Username', 'Trainee Role', 'Camp Title', 'Camp Location', 'Admitted At (UTC)'])
+        yield data.getvalue()
+        data.truncate(0)
+        data.seek(0)
+        
+        for a in admissions:
+            writer.writerow([
+                a.id, 
+                a.user.username, 
+                a.user.role, 
+                a.event.title if a.event else 'Unknown', 
+                a.event.location if a.event else 'Unknown', 
+                a.admitted_at.strftime('%Y-%m-%d %H:%M:%S')
+            ])
+            yield data.getvalue()
+            data.truncate(0)
+            data.seek(0)
+
+    response = Response(generate(), mimetype='text/csv')
+    response.headers.set('Content-Disposition', 'attachment', filename='training_admissions.csv')
     return response
 
 @app.route('/chat', methods=['POST'])
