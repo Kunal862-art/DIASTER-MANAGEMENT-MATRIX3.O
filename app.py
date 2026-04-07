@@ -12,16 +12,24 @@ import xml.etree.ElementTree as ET
 import time
 try:
     import api_config
-    api_key_local = api_config.GEMINI_API_KEY
+    api_keys_local = getattr(api_config, 'GEMINI_API_KEYS', [])
+    if hasattr(api_config, 'GEMINI_API_KEY') and api_config.GEMINI_API_KEY not in api_keys_local:
+        api_keys_local.append(api_config.GEMINI_API_KEY)
 except ImportError:
     # api_config.py is ignored by git for security, so it won't exist on the cloud server.
-    api_key_local = None
+    api_keys_local = []
 
 # Initialize Gemini AI from Cloud Environment Variables first, fallback to local config file
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or api_key_local
+GEMINI_API_KEYS = []
+env_key = os.environ.get("GEMINI_API_KEY")
+if env_key:
+    GEMINI_API_KEYS.append(env_key)
 
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+GEMINI_API_KEYS.extend(api_keys_local)
+
+if GEMINI_API_KEYS:
+    # Configure the very first available key as default
+    genai.configure(api_key=GEMINI_API_KEYS[0])
 else:
     print("WARNING: No GEMINI_API_KEY found. Chatbot disabled.")
 
@@ -524,27 +532,63 @@ def chat():
         session['chat_history'].append({"role": "user", "parts": [user_message]})
         chat_session_history = session['chat_history']
 
-    try:
-        # Start a chat session with history
-        chat_session = model.start_chat(history=chat_session_history[:-1]) 
-        response = chat_session.send_message(user_message)
-        bot_response = response.text
-        
-        if current_user.is_authenticated:
-            # Save bot response to DB
-            new_bot_msg = ChatMessage(user_id=current_user.id, role='model', content=bot_response)
-            db.session.add(new_bot_msg)
-            db.session.commit()
-        else:
-            # Save bot response to session
-            session['chat_history'].append({"role": "model", "parts": [bot_response]})
-            session.modified = True 
-        
-        return {"response": bot_response}
-    except Exception as e:
-        if current_user.is_authenticated:
-            db.session.rollback()
-        return {"error": str(e)}, 500
+    if not globals().get('GEMINI_API_KEYS'):
+        return process_mock_response("I am the SAFESTEP Assistant! My live AI capabilities are currently paused for security maintenance. Please use the navigation bar to report an incident or join an active Training Camp.")
+
+    # Try every available API key in sequence until one works
+    for i, current_key in enumerate(GEMINI_API_KEYS):
+        try:
+            genai.configure(api_key=current_key)
+            # Re-initialize the model to force it to use the new connection tunnel
+            fresh_model = genai.GenerativeModel(
+                model_name="gemini-2.5-flash",
+                system_instruction=SYSTEM_INSTRUCTION
+            )
+            # Start a chat session with history
+            chat_session = fresh_model.start_chat(history=chat_session_history[:-1]) 
+            response = chat_session.send_message(user_message)
+            bot_response = response.text
+            
+            if current_user.is_authenticated:
+                # Save bot response to DB
+                new_bot_msg = ChatMessage(user_id=current_user.id, role='model', content=bot_response)
+                db.session.add(new_bot_msg)
+                db.session.commit()
+            else:
+                # Save bot response to session
+                session['chat_history'].append({"role": "model", "parts": [bot_response]})
+                session.modified = True 
+            
+            # Successfully got response, return it
+            return {"response": bot_response}
+            
+        except Exception as e:
+            print(f"WARNING: Chatbot API connection failed on key ending with ...{current_key[-4:]}. Reason: {str(e)}")
+            
+            # If this is the last key in the list and it still fails, trigger the failsafes
+            if i == len(GEMINI_API_KEYS) - 1:
+                if "429" in str(e) or "quota" in str(e).lower():
+                    return process_mock_response("I am the SAFESTEP Assistant! Wow, we're chatting too fast! My free-tier AI intelligence is currently cooling down. Please wait about 30 seconds for my rate limit to reset before asking the next question.")
+                elif "403" in str(e) or "400" in str(e):
+                    return process_mock_response("I am the SAFESTEP Assistant! My live AI capabilities are currently paused for security maintenance. Please use the navigation bar to report an incident or join an active Training Camp.")
+                else:
+                    if current_user.is_authenticated:
+                        db.session.rollback()
+                    return {"error": str(e)}, 500
+            # Otherwise, just silently loop back and try the next backup key array slot!
+
+    return {"error": "All API Keys failed"}, 500
+
+def process_mock_response(fake_response):
+    if current_user.is_authenticated:
+        new_bot_msg = ChatMessage(user_id=current_user.id, role='model', content=fake_response)
+        db.session.add(new_bot_msg)
+        db.session.commit()
+    else:
+        from flask import session
+        session['chat_history'].append({"role": "model", "parts": [fake_response]})
+        session.modified = True
+    return {"response": fake_response}
 
 @app.route('/chat/history', methods=['GET'])
 def chat_history():
