@@ -10,10 +10,20 @@ import google.generativeai as genai
 import requests
 import xml.etree.ElementTree as ET
 import time
-import api_config
+try:
+    import api_config
+    api_key_local = api_config.GEMINI_API_KEY
+except ImportError:
+    # api_config.py is ignored by git for security, so it won't exist on the cloud server.
+    api_key_local = None
 
-# Initialize Gemini AI from the external config file to prevent hardcoded leaks
-genai.configure(api_key=api_config.GEMINI_API_KEY)
+# Initialize Gemini AI from Cloud Environment Variables first, fallback to local config file
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or api_key_local
+
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    print("WARNING: No GEMINI_API_KEY found. Chatbot disabled.")
 
 # System instruction to restrict the AI scope
 SYSTEM_INSTRUCTION = """
