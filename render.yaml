@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: safestep-web
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: safestep-db
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false # You will manually paste your API in the Render dashboard!
+
+  - type: psql
+    name: safestep-db
+    plan: free # Note: Render free DB gets deleted after 90 days
