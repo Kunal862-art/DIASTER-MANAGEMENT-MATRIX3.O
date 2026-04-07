@@ -48,7 +48,9 @@ app.secret_key = 'super_secret_key_for_development'
 # Defaults to your local SQLite file, but upgrades to PostgreSQL if deployed to a cloud server!
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
 if database_url.startswith("postgres://"):
-    database_url = database_url.replace("postgres://", "postgresql://", 1)
+    database_url = database_url.replace("postgres://", "postgresql+pg8000://", 1)
+elif database_url.startswith("postgresql://"):
+    database_url = database_url.replace("postgresql://", "postgresql+pg8000://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
